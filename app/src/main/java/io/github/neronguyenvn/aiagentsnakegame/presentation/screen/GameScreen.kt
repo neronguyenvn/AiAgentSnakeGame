@@ -1,5 +1,6 @@
 package io.github.neronguyenvn.aiagentsnakegame.presentation.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ fun GameScreen(
                 detectDragGestures { change, dragAmount ->
                     change.consume()
                     val (x, y) = dragAmount
+                    Log.d("GameScreen", "Drag amount: x=$x, y=$y")
                     if (abs(x) > abs(y)) {
                         when {
                             x > 50 -> gameViewModel.onDirectionChange(Direction.RIGHT)

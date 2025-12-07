@@ -1,5 +1,6 @@
 package io.github.neronguyenvn.aiagentsnakegame.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.neronguyenvn.aiagentsnakegame.domain.model.Direction
@@ -25,6 +26,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun onDirectionChange(direction: Direction) {
+        Log.d("GameViewModel", "onDirectionChange: $direction")
         _gameState.value = _gameState.value?.copy(
             snake = _gameState.value!!.snake.copy(direction = direction)
         )
