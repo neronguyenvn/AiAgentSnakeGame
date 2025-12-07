@@ -28,6 +28,8 @@ fun GameScreen(
     gameViewModel: GameViewModel = viewModel()
 ) {
     val gameState = gameViewModel.gameState.collectAsState().value
+    val lastScore = gameViewModel.lastScore.collectAsState().value
+    val bestScore = gameViewModel.bestScore.collectAsState().value
 
     LaunchedEffect(Unit) {
         gameViewModel.startGame()
@@ -92,7 +94,17 @@ fun GameScreen(
             )
             Text(
                 text = "Score: ${gameState.score}",
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(top = 16.dp, start = 16.dp),
+                color = Color.White
+            )
+            Text(
+                text = "Last Score: $lastScore",
+                modifier = Modifier.padding(top = 40.dp, start = 16.dp),
+                color = Color.White
+            )
+            Text(
+                text = "Best Score: $bestScore",
+                modifier = Modifier.padding(top = 64.dp, start = 16.dp),
                 color = Color.White
             )
             if (gameState.gameStatus == GameStatus.GAME_OVER) {
