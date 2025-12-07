@@ -1,9 +1,9 @@
 package io.github.neronguyenvn.aiagentsnakegame.presentation.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
+import kotlin.math.abs
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -33,27 +33,28 @@ fun GameScreen(
         return
     }
 
-    BoxWithConstraints {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { offset ->
-                            val x = offset.x
-                            val y = offset.y
-                            val direction = when {
-                                x < constraints.maxWidth / 4 -> Direction.LEFT
-                                x > constraints.maxWidth * 3 / 4 -> Direction.RIGHT
-                                y < constraints.maxHeight / 2 -> Direction.UP
-                                else -> Direction.DOWN
-                            }
-                            gameViewModel.onDirectionChange(direction)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    val (x, y) = dragAmount
+                    if (abs(x) > abs(y)) {
+                        when {
+                            x > 50 -> gameViewModel.onDirectionChange(Direction.RIGHT)
+                            x < -50 -> gameViewModel.onDirectionChange(Direction.LEFT)
                         }
-                    )
+                    } else {
+                        when {
+                            y > 50 -> gameViewModel.onDirectionChange(Direction.DOWN)
+                            y < -50 -> gameViewModel.onDirectionChange(Direction.UP)
+                        }
+                    }
                 }
-        ) {
+            }
+    ) {
             SnakePart(
                 modifier = Modifier.offset(
                     (gameState.snake.head.x * 20).dp,
@@ -87,4 +88,3 @@ fun GameScreen(
             }
         }
     }
-}
