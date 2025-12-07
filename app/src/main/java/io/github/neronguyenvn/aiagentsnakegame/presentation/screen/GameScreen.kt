@@ -5,12 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import kotlin.math.abs
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,9 +29,8 @@ fun GameScreen(
 ) {
     val gameState = gameViewModel.gameState.collectAsState().value
 
-    if (gameState == null) {
+    LaunchedEffect(Unit) {
         gameViewModel.startGame()
-        return
     }
 
     Box(
@@ -39,19 +38,34 @@ fun GameScreen(
             .fillMaxSize()
             .background(Color.Black)
             .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
+                var lastDominantDirectionType: Char? = null // 'h' for horizontal, 'v' for vertical
+
+                detectDragGestures(
+                    onDragEnd = {
+                        lastDominantDirectionType = null
+                    }
+                ) { change, dragAmount ->
                     change.consume()
                     val (x, y) = dragAmount
+
                     Log.d("GameScreen", "Drag amount: x=$x, y=$y")
-                    if (abs(x) > abs(y)) {
-                        when {
-                            x > 50 -> gameViewModel.onDirectionChange(Direction.RIGHT)
-                            x < -50 -> gameViewModel.onDirectionChange(Direction.LEFT)
-                        }
-                    } else {
-                        when {
-                            y > 50 -> gameViewModel.onDirectionChange(Direction.DOWN)
-                            y < -50 -> gameViewModel.onDirectionChange(Direction.UP)
+
+                    // Determine if current drag is predominantly horizontal or vertical
+                    val currentDominantDirectionType = if (abs(x) > abs(y)) 'h' else 'v'
+
+                    if (lastDominantDirectionType == null || lastDominantDirectionType == currentDominantDirectionType) {
+                        if (abs(x) > abs(y)) {
+                            if (abs(x) > 10) { // Check against the threshold
+                                if (x > 0) gameViewModel.onDirectionChange(Direction.RIGHT)
+                                else gameViewModel.onDirectionChange(Direction.LEFT)
+                                lastDominantDirectionType = 'h'
+                            }
+                        } else {
+                            if (abs(y) > 10) { // Check against the threshold
+                                if (y > 0) gameViewModel.onDirectionChange(Direction.DOWN)
+                                else gameViewModel.onDirectionChange(Direction.UP)
+                                lastDominantDirectionType = 'v'
+                            }
                         }
                     }
                 }
